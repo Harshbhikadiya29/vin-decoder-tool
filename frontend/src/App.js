@@ -4,13 +4,15 @@ import './App.css';
 function App() {
   const [vin, setVin] = useState('');
   const [vehicleInfo, setVehicleInfo] = useState(null);
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
     try {
-      const response = await fetch('http://localhost:5000/api/decode', {
+      const response = await fetch('http://localhost:5000/api/vin/decode', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -19,9 +21,17 @@ function App() {
       });
 
       const data = await response.json();
-      setVehicleInfo(data);
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to decode VIN');
+      } else {
+        if (data.data) {
+          setVehicleInfo(data.data);
+        }
+        setError(null);
+      }
     } catch (error) {
       console.error('Error:', error);
+      setError('Failed to decode VIN. Please try again later.');
     }
     setLoading(false);
   };
@@ -41,7 +51,7 @@ function App() {
       </form>
 
       {loading && <p>Loading...</p>}
-      {vehicleInfo && (
+      {vehicleInfo && !error && (
         <div>
           <h2>Vehicle Information</h2>
           <p><strong>Make:</strong> {vehicleInfo.make}</p>
@@ -50,6 +60,7 @@ function App() {
           <p><strong>VIN:</strong> {vehicleInfo.vin}</p>
         </div>
       )}
+      {error && <p className="error">{error}</p>}
     </div>
   );
 }
