@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
-import './App.css';
 
-function App() {
+export default function Home() {
   const [vin, setVin] = useState('');
   const [vehicleInfo, setVehicleInfo] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:5000/api/vin/decode', {
+      const response = await fetch(`${API_URL}/vin/decode`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -37,7 +38,7 @@ function App() {
   };
 
   return (
-    <div className="App">
+    <div className="home-container">
       <h1>VIN Decoder</h1>
       <form onSubmit={handleSubmit}>
         <input
@@ -62,7 +63,5 @@ function App() {
       )}
       {error && <p className="error">{error}</p>}
     </div>
-  );
+  )
 }
-
-export default App;
