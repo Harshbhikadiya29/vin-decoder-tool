@@ -1,11 +1,10 @@
 const axios = require('axios');
-const dotenv = require('dotenv');
-dotenv.config();
+require("dotenv").config();
 
-const VIN_API_URL = process.env.VIN_API_URL;
 
 const decodeVin = async (req, res) => {
   const { vin } = req.body;
+  const VIN_API_URL = process.env.VIN_API_URL;
 
   if (!vin || vin.length !== 17) {
     return res.status(400).json({ error: 'Invalid VIN. A VIN must be 17 characters long.' });
