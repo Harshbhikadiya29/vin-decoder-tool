@@ -1,14 +1,20 @@
 import React, { useState } from 'react';
 import { Input, Button } from '@mantine/core';
 import VehicleCard from '../../components/VehicleCard';
+import VehicleListings from '../../components/VehicleListings';
+import './Home.module.css';
 
 export default function Home() {
   const [vin, setVin] = useState('');
   const [vehicleInfo, setVehicleInfo] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [vehicleImage, setVehicleImage] = useState(null);
-  const [vehicleImageError, setVehicleImageError] = useState(null);
+  const [vehicleListings, setVehicleListings] = useState(null);
+
+  const [error, setError] = useState(null);
+  const [listingError, setListingError] = useState(null);
+
+  const [loading, setLoading] = useState(false);
+  const [listingLoading, setListingLoading] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -18,7 +24,7 @@ export default function Home() {
     setError(null);
     setVehicleInfo(null);
     setVehicleImage(null);
-    setVehicleImageError(null);
+
     try {
       const response = await fetch(`${API_URL}/vin/decode`, {
         method: 'POST',
@@ -38,8 +44,6 @@ export default function Home() {
         setError(null);
       }
 
-      console.log('Vehicle Info:', data.data);
-
       const imageResponse = await fetch(`${API_URL}/vin/vehicle/image`, {
         method: 'POST',
         headers: {
@@ -57,7 +61,7 @@ export default function Home() {
         setVehicleImage('https://www.shutterstock.com/image-vector/car-logo-icon-emblem-design-600nw-473088025.jpg');
       } else {
         setVehicleImage(imageData.data);
-        setVehicleImageError(null);
+
       }
 
     } catch (error) {
@@ -66,6 +70,47 @@ export default function Home() {
     }
     setLoading(false);
   };
+
+  const handleVehicleListing = async (e) => {
+    e.preventDefault();
+    setListingLoading(true);
+    setListingError(null);
+    setVehicleListings(null);
+
+    try {
+      if (!vehicleInfo) {
+        setListingError('Please decode a VIN first.');
+        return;
+      }
+      if (!vehicleInfo.year || !vehicleInfo.make || !vehicleInfo.model) {
+        setListingError('Vehicle information is incomplete.');
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/vin/vehicle/listings`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ year: vehicleInfo.year, make: vehicleInfo.make, model: vehicleInfo.model })
+      });
+
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to fetch vehicle listings');
+      } else {
+        if (data.data) {
+          setVehicleListings(data.data);
+        }
+        setError(null);
+      }
+      console.log('Vehicle Listings:', data.data);
+    } catch (error) {
+      console.error('Error:', error);
+      setListingError('Failed to fetch vehicle listings. Please try again later.');
+    }
+    setListingLoading(false);
+  }
 
   return (
     <div className="home-container">
@@ -86,15 +131,20 @@ export default function Home() {
       {loading && <p>Loading...</p>}
       {vehicleInfo && !error && (
         <div>
-          {/* <h2>Vehicle Information</h2>
-          <p><strong>Make:</strong> {vehicleInfo.make}</p>
-          <p><strong>Model:</strong> {vehicleInfo.model}</p>
-          <p><strong>Year:</strong> {vehicleInfo.year}</p>
-          <p><strong>VIN:</strong> {vehicleInfo.vin}</p> */}
-          <VehicleCard vehicleResponse={vehicleInfo} vehicleImage={vehicleImage} />
+          <VehicleCard vehicleResponse={vehicleInfo} vehicleImage={vehicleImage} handleVehicleListing={handleVehicleListing} />
         </div>
       )}
       {error && <p className="error">{error}</p>}
+      {listingLoading && <p>Loading listings...</p>}
+      {listingError && <p className="error">{listingError}</p>}
+      {vehicleListings && vehicleListings.length > 0 && !listingError && (
+        <div>
+          <VehicleListings vehicleListings={vehicleListings} />
+        </div>
+      )}
+      {vehicleListings && vehicleListings.length === 0 && !listingError && !listingLoading && (
+        <p>No listings found.</p>
+      )}
     </div>
   )
 }

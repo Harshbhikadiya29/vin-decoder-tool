@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, Image, Text, Group } from '@mantine/core';
+import { Card, Image, Text, Group, Button } from '@mantine/core';
 
-const VehicleCard = ({ vehicleResponse, vehicleImage }) => {
+const VehicleCard = ({ vehicleResponse, vehicleImage, handleVehicleListing }) => {
   if (!vehicleResponse || !vehicleImage) {
     return null;
   }
@@ -27,7 +27,6 @@ const VehicleCard = ({ vehicleResponse, vehicleImage }) => {
           caption={`${year} ${make} ${model}`}
           fit="contain"
           style={{ borderRadius: 'var(--mantine-radius)' }}
-          withPlaceholder
           placeholder={<Text>Loading...</Text>}
           error={<Text>Image not available</Text>}
           height={240}
@@ -44,6 +43,17 @@ const VehicleCard = ({ vehicleResponse, vehicleImage }) => {
       <Text size="sm" color="dimmed">
         VIN: {vin}
       </Text>
+
+      <Group position="right" mt="md" width="100%">
+        <Button
+          onClick={handleVehicleListing}
+          variant="outline"
+          color="blue"
+          fullWidth
+        >
+          Get Listings
+        </Button>
+      </Group>
     </Card>
   );
 };
