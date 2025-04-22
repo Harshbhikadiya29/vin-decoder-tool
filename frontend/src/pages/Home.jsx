@@ -24,6 +24,8 @@ export default function Home() {
     setError(null);
     setVehicleInfo(null);
     setVehicleImage(null);
+    setVehicleListings(null);
+    setListingError(null);
 
     try {
       const response = await fetch(`${API_URL}/vin/decode`, {
