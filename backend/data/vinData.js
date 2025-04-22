@@ -61,7 +61,7 @@ async function createVehicle(make, model, year) {
   }
   const newVehicle = new Vehicle({ make, model, year, imageUrl });
   await newVehicle.save();
-  return imageUrl;
+  return newVehicle;
 }
 
 // Read a vehicle

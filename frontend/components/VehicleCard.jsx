@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, Image, Text, Group, Button } from '@mantine/core';
 
 const VehicleCard = ({ vehicleResponse, vehicleImage, handleVehicleListing }) => {
-  if (!vehicleResponse || !vehicleImage) {
+  if (!vehicleResponse) {
     return null;
   }
   const { make, model, year, vin } = vehicleResponse;
