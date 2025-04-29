@@ -12,22 +12,24 @@ services:
       - mongo-data:/data/db
 
   backend:
+    env_file: ./backend/.env.development
     build:
       context: ./backend
     container_name: backend
     ports:
-      - "3000:3000"
+      - "5000:5000"
     environment:
       MONGO_URI: mongodb://mongo:27017/myappdb
     depends_on:
       - mongo
 
   frontend:
+    env_file: ./frontend/.env.local
     build:
       context: ./frontend
     container_name: frontend
     ports:
-      - "80:80"
+      - "3000:80"
     depends_on:
       - backend
 

@@ -8,13 +8,30 @@ require("dotenv").config();
 require("./config");
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
-mongoose.connect(settings.mongoConfig.serverUrl || process.env.MONGO_URL, settings.mongoConfig.options || {})
+mongoose.connect(process.env.MONGO_URL || settings.mongoConfig.serverUrl, settings.mongoConfig.options || {})
     .then(() => console.log('MongoDB connected successfully!'))
     .catch(err => console.error('MongoDB connection error:', err));
 
-app.use(cors());
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:5173',
+    process.env.CLIENT_URL,
+];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            console.warn('Blocked CORS request from:', origin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true
+}));
 app.use(bodyParser.json());
 
 registerRoutes(app);
