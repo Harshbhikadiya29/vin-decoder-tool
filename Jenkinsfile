@@ -19,14 +19,21 @@ pipeline {
         }
 
         stage('Install Dependencies') {
-            steps {
-                dir('frontend') {
-                    sh 'npm ci'
-                }
-                dir('backend') {
-                    sh 'npm ci'
-                }
-            }
+          steps {
+              sh '''
+              curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+              sudo apt-get install -y nodejs
+              node -v
+              npm -v
+              '''
+
+              dir('frontend') {
+                  sh 'npm ci'
+              }
+              dir('backend') {
+                  sh 'npm ci'
+              }
+          }
         }
 
         stage('Run Tests') {
