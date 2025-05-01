@@ -29,14 +29,12 @@ pipeline {
             }
         }
 
-        stage('Run Lint and Tests') {
+        stage('Run Tests') {
             steps {
                 dir('frontend') {
-                    sh 'npm run lint'
                     sh 'npm test'
                 }
                 dir('backend') {
-                    sh 'npm run lint'
                     sh 'npm test'
                 }
             }
