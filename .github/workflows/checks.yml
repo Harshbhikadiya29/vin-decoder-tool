@@ -19,36 +19,58 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Dependencies
+      # FRONTEND CHECKS
+      - name: Install Frontend Dependencies
         run: npm ci
+        working-directory: frontend
 
-      - name: Run Lint
+      - name: Run Frontend Lint
         run: npm run lint
+        working-directory: frontend
 
-      - name: Run Tests
+      - name: Run Frontend Tests
         run: npm test
+        working-directory: frontend
 
-      - name: Audit Node Packages
+      # BACKEND CHECKS
+      - name: Install Backend Dependencies
+        run: npm ci
+        working-directory: backend
+
+      - name: Run Backend Lint
+        run: npm run lint
+        working-directory: backend
+
+      - name: Run Backend Tests
+        run: npm test
+        working-directory: backend
+
+      # SECURITY AUDITS
+      - name: Audit Frontend Packages
         run: npm audit --audit-level=high || true
+        working-directory: frontend
 
+      - name: Audit Backend Packages
+        run: npm audit --audit-level=high || true
+        working-directory: backend
+
+      # DOCKER IMAGE BUILDS
       - name: Build Docker Backend Image
-        run: |
-          docker build -t my-backend ./backend
+        run: docker build -t my-backend ./backend
 
       - name: Build Docker Frontend Image
-        run: |
-          docker build -t my-frontend ./frontend
+        run: docker build -t my-frontend ./frontend
 
+      # TRIVY INSTALL AND SCAN
       - name: Install Trivy
         run: |
-          sudo apt-get install wget
+          sudo apt-get update
+          sudo apt-get install -y wget
           wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.51.1_Linux-64bit.deb
           sudo dpkg -i trivy_0.51.1_Linux-64bit.deb
 
       - name: Scan Backend Image with Trivy
-        run: |
-          trivy image --exit-code 1 --severity HIGH,CRITICAL my-backend
+        run: trivy image --exit-code 1 --severity HIGH,CRITICAL my-backend
 
       - name: Scan Frontend Image with Trivy
-        run: |
-          trivy image --exit-code 1 --severity HIGH,CRITICAL my-frontend
+        run: trivy image --exit-code 1 --severity HIGH,CRITICAL my-frontend
