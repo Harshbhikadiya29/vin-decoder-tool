@@ -92,11 +92,11 @@ pipeline {
                 """
             }
         }
-    }
 
-    stage('Cleanup') {
-        steps {
-            sh 'docker rmi frontend backend || true'
+        stage('Cleanup') {
+            steps {
+                sh 'docker rmi frontend backend || true'
+            }
         }
     }
 
