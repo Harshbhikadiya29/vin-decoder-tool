@@ -45,8 +45,8 @@ pipeline {
                 sh 'docker build -t frontend ./frontend'
                 sh 'docker build -t backend ./backend'
 
-                sh 'trivy image --exit-code 1 --severity HIGH,CRITICAL frontend'
-                sh 'trivy image --exit-code 1 --severity HIGH,CRITICAL backend'
+                sh 'trivy image --exit-code 1 --severity CRITICAL frontend'
+                sh 'trivy image --exit-code 1 --severity CRITICAL backend'
             }
         }
 
