@@ -69,7 +69,7 @@ jobs:
           sudo dpkg -i trivy_0.62.0_Linux-64bit.deb
 
       - name: Scan Backend Image with Trivy
-        run: trivy image --exit-code 1 --severity HIGH,CRITICAL my-backend
+        run: trivy image --exit-code 1 --severity --dependency-tree HIGH,CRITICAL my-backend
 
       - name: Scan Frontend Image with Trivy
-        run: trivy image --exit-code 1 --severity HIGH,CRITICAL my-frontend
+        run: trivy image --exit-code 1 --severity --dependency-tree HIGH,CRITICAL my-frontend
