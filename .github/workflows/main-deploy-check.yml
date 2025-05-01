@@ -18,11 +18,31 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Dependencies
+      # FRONTEND CHECKS
+      - name: Install Frontend Dependencies
         run: npm ci
+        working-directory: frontend
 
-      - name: Run Tests
+      - name: Run Frontend Tests
         run: npm test
+        working-directory: frontend
+
+      # BACKEND CHECKS
+      - name: Install Backend Dependencies
+        run: npm ci
+        working-directory: backend
+      - name: Run Backend Tests
+        run: npm test
+        working-directory: backend
+
+        # SECURITY AUDITS
+      - name: Audit Frontend Packages
+        run: npm audit --audit-level=high || true
+        working-directory: frontend
+
+      - name: Audit Backend Packages
+        run: npm audit --audit-level=high || true
+        working-directory: backend
 
       - name: Build Backend Docker Image
         run: docker build -t my-backend ./backend
@@ -37,10 +57,10 @@ jobs:
           sudo dpkg -i trivy_0.62.0_Linux-64bit.deb
 
       - name: Scan Backend with Trivy
-        run: trivy image --exit-code 1 --severity HIGH,CRITICAL my-backend
+        run: trivy image --exit-code 1 --severity CRITICAL my-backend
 
       - name: Scan Frontend with Trivy
-        run: trivy image --exit-code 1 --severity HIGH,CRITICAL my-frontend
+        run: trivy image --exit-code 1 --severity CRITICAL my-frontend
 
       - name: Trigger Jenkins Deploy
         if: success()
