@@ -44,7 +44,7 @@ pipeline {
             steps {
                 sh '''
                 sudo apt-get update && sudo apt-get install -y wget
-                wget -q https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.51.1_Linux-64bit.deb
+                wget -q https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.62.0_Linux-64bit.deb
                 sudo dpkg -i trivy_0.51.1_Linux-64bit.deb
                 '''
 
