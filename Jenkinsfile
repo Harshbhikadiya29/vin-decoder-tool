@@ -9,6 +9,7 @@ pipeline {
         AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
         IMAGE_TAG = "${env.BUILD_NUMBER}"
+        VITE_API_URL = credentials('VITE_API_URL')
     }
 
     stages {
@@ -42,7 +43,7 @@ pipeline {
 
         stage('Run Security Checks') {
             steps {
-                sh 'docker build -t frontend ./frontend'
+                sh 'docker build --build-arg VITE_API_URL=${VITE_API_URL} -t frontend ./frontend'
                 sh 'docker build -t backend ./backend'
 
                 sh 'trivy image --exit-code 1 --severity CRITICAL frontend'
