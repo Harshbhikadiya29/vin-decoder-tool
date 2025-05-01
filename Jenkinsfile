@@ -42,12 +42,6 @@ pipeline {
 
         stage('Run Security Checks') {
             steps {
-                sh '''
-                apt-get update && apt-get install -y wget
-                wget -q https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.62.0_Linux-64bit.deb
-                dpkg -i trivy_0.51.1_Linux-64bit.deb
-                '''
-
                 sh 'docker build -t frontend ./frontend'
                 sh 'docker build -t backend ./backend'
 
