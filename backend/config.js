@@ -11,7 +11,7 @@ switch (env) {
     dotenv.config({ path: '.env.staging' });
     break;
   case 'production':
-    dotenv.config({ path: '.env.production' });
+    dotenv.config();
     break;
   default:
     throw new Error(`Unknown environment: ${env}`);
