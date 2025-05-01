@@ -62,7 +62,20 @@ jobs:
       - name: Scan Frontend with Trivy
         run: trivy image --exit-code 1 --severity CRITICAL my-frontend
 
-      - name: Trigger Jenkins Deploy
-        if: success()
+      - name: Trigger Jenkins job
         run: |
-          curl -X POST "http://${{ secrets.JENKINS_URL }}/job/${{ secrets.JENKINS_JOB_NAME }}/build?token=${{ secrets.JENKINS_DEPLOY_SECRET }}"
+          JENKINS_URL="http://${{ secrets.JENKINS_URL }}"
+          USER="${{ secrets.JENKINS_USER }}"
+          API_TOKEN="${{ secrets.JENKINS_API_TOKEN }}"
+          JOB_NAME="${{ secrets.JENKINS_JOB_NAME }}"
+          TOKEN="${{ secrets.JENKINS_DEPLOY_SECRET }}"
+
+          # Get crumb
+          CRUMB_JSON=$(curl -s --user "$USER:$API_TOKEN" "$JENKINS_URL/crumbIssuer/api/json")
+          CRUMB=$(echo "$CRUMB_JSON" | jq -r '.crumb')
+          CRUMB_FIELD=$(echo "$CRUMB_JSON" | jq -r '.crumbRequestField')
+
+          # Trigger build
+          curl -X POST "$JENKINS_URL/job/$JOB_NAME/build?token=$TOKEN" \
+            --user "$USER:$API_TOKEN" \
+            -H "$CRUMB_FIELD: $CRUMB"
