@@ -36,6 +36,6 @@ app.use(bodyParser.json());
 
 registerRoutes(app);
 
-app.listen(PORT, () => {
+app.listen(PORT, process.env.SERVER_LISTEN || '0.0.0.0', () => {
     console.log(`Server running on http://localhost:${PORT} in ${process.env.NODE_ENV} mode!`);
 });
