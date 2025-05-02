@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Input, Button } from '@mantine/core';
-import VehicleCard from '../../components/VehicleCard';
-import VehicleListings from '../../components/VehicleListings';
+import VehicleCard from '../components/VehicleCard';
+import VehicleListings from '../components/VehicleListings';
 import './Home.module.css';
 
 export default function Home() {

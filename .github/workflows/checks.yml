@@ -1,0 +1,75 @@
+name: PR Security and Quality Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+      - production
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # FRONTEND CHECKS
+      - name: Install Frontend Dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Run Frontend Tests
+        run: npm test
+        working-directory: frontend
+
+      # BACKEND CHECKS
+      - name: Install Backend Dependencies
+        run: npm ci
+        working-directory: backend
+      - name: Run Backend Tests
+        run: npm test
+        working-directory: backend
+
+      # SECURITY AUDITS
+      - name: Audit Frontend Packages
+        run: npm audit --audit-level=high || true
+        working-directory: frontend
+
+      - name: Audit Backend Packages
+        run: npm audit --audit-level=high || true
+        working-directory: backend
+
+      # DOCKER IMAGE BUILDS
+      - name: Build Docker Backend Image
+        run: docker build -t my-backend ./backend
+
+      - name: Build Docker Frontend Image
+        run: docker build -t my-frontend ./frontend
+
+      # TRIVY INSTALL AND SCAN
+      - name: Install Trivy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget
+          wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.62.0_Linux-64bit.deb
+          sudo dpkg -i trivy_0.62.0_Linux-64bit.deb
+
+      - name: Scan Backend Image with Trivy
+        run: trivy image --exit-code 1 --severity CRITICAL my-backend
+
+      - name: Scan Frontend Image with Trivy
+        run: trivy image --exit-code 1 --severity CRITICAL my-frontend
