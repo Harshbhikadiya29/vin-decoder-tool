@@ -1,10 +1,12 @@
-// vitest.config.js
-import { defineConfig } from 'vitest/config';
+// frontend/vitest.config.js
+import { defineConfig } from 'vitest/config'; import react from '@vitejs/plugin-react';
 
 export default defineConfig({
+  plugins: [react()],
   test: {
-    setupFiles: ['./src/setupTests.js'], // path to the file with matchMedia mock
     environment: 'jsdom',
     globals: true,
+    setupFiles: './test/setup.js',
+    include: ['**/*.{test,spec}.{js,jsx,ts,tsx}'],
   },
 });
