@@ -64,7 +64,7 @@ jobs:
 
       - name: Trigger Jenkins job
         run: |
-          JENKINS_URL="http://${{ secrets.JENKINS_URL }}"
+          JENKINS_URL="${{ secrets.JENKINS_URL }}"
           USER="${{ secrets.JENKINS_USER }}"
           API_TOKEN="${{ secrets.JENKINS_API_TOKEN }}"
           JOB_NAME="${{ secrets.JENKINS_JOB_NAME }}"
