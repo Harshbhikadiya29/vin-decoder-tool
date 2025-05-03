@@ -10,18 +10,29 @@ require("./config");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+async function connectWithRetry(uri, options, delayMs = 5000) {
+    while (true) {
+        try {
+            await mongoose.connect(uri, options);
+            console.log("MongoDB connected successfully!");
+            break; // Exit the loop on success
+        } catch (err) {
+            console.error(`MongoDB connection failed: ${err.message}`);
+            console.log(`Retrying in ${delayMs / 1000} seconds...`);
+            await new Promise((res) => setTimeout(res, delayMs));
+        }
+    }
+}
+
+const mongoUri = process.env.MONGO_URL;
+const mongoOptions = settings.mongoConfig?.options || {};
+
+if (process.env.NODE_ENV !== 'test' && !mongoUri) {
+    throw new Error("MONGO_URL not defined in environment and no fallback configured");
+}
+
 if (process.env.NODE_ENV !== 'test') {
-    mongoose.connect(process.env.MONGO_URL || settings.mongoConfig.serverUrl, settings.mongoConfig.options || {})
-        .then(() => {
-            if (process.env.NODE_ENV !== 'test') {
-                console.log('MongoDB connected successfully!');
-            }
-        })
-        .catch(err => {
-            if (process.env.NODE_ENV !== 'test') {
-                console.error('MongoDB connection error:', err);
-            }
-        });
+    connectWithRetry(mongoUri, mongoOptions, 5000);
 }
 
 const allowedOrigins = [
@@ -46,16 +57,10 @@ app.use(bodyParser.json());
 
 registerRoutes(app);
 
-// app.listen(PORT, process.env.SERVER_LISTEN || '0.0.0.0', () => {
-//     console.log(`Server running on http://localhost:${PORT} in ${process.env.NODE_ENV} mode!`);
-// });
-
 if (process.env.NODE_ENV !== 'test') {
     app.listen(PORT, process.env.SERVER_LISTEN || '0.0.0.0', () => {
-        console.log(
-            `Server running on http://localhost:${PORT} in ${process.env.NODE_ENV} mode!`
-        );
+        console.log(`Server running on http://localhost:${PORT} in ${process.env.NODE_ENV} mode!`);
     });
 }
 
-module.exports = app;
+module.exports = app; // Export the app for testing purposes
