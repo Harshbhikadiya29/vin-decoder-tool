@@ -27,7 +27,7 @@ async function connectWithRetry(uri, options, delayMs = 5000) {
 const mongoUri = process.env.MONGO_URL;
 const mongoOptions = settings.mongoConfig?.options || {};
 
-if (!mongoUri) {
+if (process.env.NODE_ENV !== 'test' && !mongoUri) {
     throw new Error("MONGO_URL not defined in environment and no fallback configured");
 }
 
